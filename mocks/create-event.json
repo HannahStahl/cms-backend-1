@@ -1,0 +1,8 @@
+{
+  "body": "{\"title\":\"blog post\",\"content\":\"hello world\",\"image\":\"hello.jpg\",\"blogPostState\":\"Draft\"}",
+  "requestContext": {
+    "identity": {
+      "cognitoIdentityId": "USER-SUB-1234"
+    }
+  }
+}
