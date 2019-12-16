@@ -6,10 +6,8 @@ export async function main(event, context) {
   const data = JSON.parse(event.body);
   const params = {
     TableName: process.env.commentsTableName,
-    Key: {
-      blogPostId: event.pathParameters.id
-    },
     Item: {
+      blogPostId: event.pathParameters.id,
       commentId: uuid.v1(),
       name: data.name,
       content: data.content,
