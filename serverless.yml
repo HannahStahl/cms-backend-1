@@ -157,7 +157,6 @@ functions:
           path: blogPostComments/{id}
           method: post
           cors: true
-          authorizer: aws_iam
 
   listComments:
     # Defines an HTTP API endpoint that calls the main function in comments/list.js
@@ -169,7 +168,6 @@ functions:
           path: blogPostComments/{id}
           method: get
           cors: true
-          authorizer: aws_iam
 
 # Create our resources with separate CloudFormation templates
 resources:
