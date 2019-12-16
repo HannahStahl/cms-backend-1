@@ -10,7 +10,8 @@ custom:
   # commands. Or fallsback to what we have set in the provider section.
   stage: ${opt:stage, self:provider.stage}
   # Set the table name here so we can use it while testing locally
-  tableName: ${self:custom.stage}-blogPosts
+  postsTableName: ${self:custom.stage}-blogPosts
+  commentsTableName: ${self:custom.stage}-blogPostComments
   # Set our DynamoDB throughput for prod and all other non-prod stages.
   tableThroughputs:
     prod: 5
@@ -30,7 +31,8 @@ provider:
   # These environment variables are made available to our functions
   # under process.env.
   environment:
-    tableName: ${self:custom.tableName}
+    postsTableName: ${self:custom.postsTableName}
+    commentsTableName: ${self:custom.commentsTableName}
 
   iamRoleStatements:
     - Effect: Allow
@@ -46,6 +48,7 @@ provider:
       # the specific table for the stage
       Resource:
         - "Fn::GetAtt": [ BlogPostsTable, Arn ]
+        - "Fn::GetAtt": [ BlogPostCommentsTable, Arn ]
 
 functions:
   ping:
@@ -56,14 +59,14 @@ functions:
           method: get
           cors: true
 
-  # Defines an HTTP API endpoint that calls the main function in create.js
+  # Defines an HTTP API endpoint that calls the main function in posts/create.js
   # - path: url path is /blogPosts
   # - method: POST request
   # - cors: enabled CORS (Cross-Origin Resource Sharing) for browser cross
   #     domain api call
   # - authorizer: authenticate using the AWS IAM role
-  create:
-    handler: create.main
+  createPost:
+    handler: posts/create.main
     events:
       - http:
           path: blogPosts
@@ -71,11 +74,11 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  get:
-    # Defines an HTTP API endpoint that calls the main function in get.js
+  getPost:
+    # Defines an HTTP API endpoint that calls the main function in posts/get.js
     # - path: url path is /blogPosts/{id}
     # - method: GET request
-    handler: get.main
+    handler: posts/get.main
     events:
       - http:
           path: blogPosts/{id}
@@ -83,22 +86,22 @@ functions:
           cors: true
           authorizer: aws_iam
   
-  getSpecified:
-    # Defines an HTTP API endpoint that calls the main function in getSpecified.js
+  getSpecifiedPost:
+    # Defines an HTTP API endpoint that calls the main function in posts/getSpecified.js
     # - path: url path is /blogPostForUser/{userId}/{blogPostId}
     # - method: GET request
-    handler: getSpecified.main
+    handler: posts/getSpecified.main
     events:
       - http:
           path: blogPostForUser/{userId}/{blogPostId}
           method: get
           cors: true
 
-  list:
-    # Defines an HTTP API endpoint that calls the main function in list.js
+  listPosts:
+    # Defines an HTTP API endpoint that calls the main function in posts/list.js
     # - path: url path is /blogPosts
     # - method: GET request
-    handler: list.main
+    handler: posts/list.main
     events:
       - http:
           path: blogPosts
@@ -106,22 +109,22 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  listSpecified:
-    # Defines an HTTP API endpoint that calls the main function in listSpecified.js
+  listSpecifiedPosts:
+    # Defines an HTTP API endpoint that calls the main function in posts/listSpecified.js
     # - path: url path is /blogPostsForUser/{userId}
     # - method: GET request
-    handler: listSpecified.main
+    handler: posts/listSpecified.main
     events:
       - http:
           path: blogPostsForUser/{userId}
           method: get
           cors: true    
 
-  update:
-    # Defines an HTTP API endpoint that calls the main function in update.js
+  updatePost:
+    # Defines an HTTP API endpoint that calls the main function in posts/update.js
     # - path: url path is /blogPosts/{id}
     # - method: PUT request
-    handler: update.main
+    handler: posts/update.main
     events:
       - http:
           path: blogPosts/{id}
@@ -129,15 +132,42 @@ functions:
           cors: true
           authorizer: aws_iam
 
-  delete:
-    # Defines an HTTP API endpoint that calls the main function in delete.js
+  deletePost:
+    # Defines an HTTP API endpoint that calls the main function in posts/delete.js
     # - path: url path is /blogPosts/{id}
     # - method: DELETE request
-    handler: delete.main
+    handler: posts/delete.main
     events:
       - http:
           path: blogPosts/{id}
           method: delete
+          cors: true
+          authorizer: aws_iam
+
+  # Defines an HTTP API endpoint that calls the main function in comments/create.js
+  # - path: url path is /blogPostComments/{id}
+  # - method: POST request
+  # - cors: enabled CORS (Cross-Origin Resource Sharing) for browser cross
+  #     domain api call
+  # - authorizer: authenticate using the AWS IAM role
+  createComment:
+    handler: comments/create.main
+    events:
+      - http:
+          path: blogPostComments/{id}
+          method: post
+          cors: true
+          authorizer: aws_iam
+
+  listComments:
+    # Defines an HTTP API endpoint that calls the main function in comments/list.js
+    # - path: url path is /blogPostComments/{id}
+    # - method: GET request
+    handler: comments/list.main
+    events:
+      - http:
+          path: blogPostComments/{id}
+          method: get
           cors: true
           authorizer: aws_iam
 
